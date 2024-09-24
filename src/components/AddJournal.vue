@@ -4,6 +4,9 @@
       <p class="font-inter font-normal text-xl leading-[30px] mb-5 text-left">
         New Journal
       </p>
+      <!-- <p class="font-inter font-normal text-xl leading-[30px] mb-5 text-left">
+        {{ selectedSection ? selectedSection.title : "No Section Selected" }}
+      </p> -->
 
       <div>
         <label
@@ -39,19 +42,40 @@
 
       <div>
         <label
-          for="title"
+          for="tags"
           class="block text-sm font-medium text-gray-800 text-left"
         >
           Tags
         </label>
-        <input
-          id="title"
-          v-model="title"
-          type="text"
-          placeholder="Enter item title"
-          class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        />
+        <div class="relative">
+          <input
+            id="tags"
+            v-model="inputValue"
+            @keyup.enter="addTag"
+            type="text"
+            placeholder="Enter tags..."
+            class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pl-3 flex-wrap top-2"
+          >
+            <span
+              v-for="(tag, index) in tags"
+              :key="index"
+              class="bg-gray-300 text-gray-800 rounded-full px-3 py-1 mr-2 mb-2 text-sm"
+            >
+              {{ tag.name }}
+              <button
+                @click="removeTag(index)"
+                class="ml-2 text-gray-600 hover:text-gray-800"
+              >
+                &times;
+              </button>
+            </span>
+          </div>
+        </div>
       </div>
+
       <div class="flex space-x-4">
         <!-- Voice Recorder -->
         <div class="flex-1">
@@ -153,62 +177,66 @@
         </div>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-6 flex justify-end gap-2">
         <button
           type="submit"
-          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-black bg-white ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
         >
-          Submit
+          cancle
+        </button>
+        <button
+          type="submit"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#6941C6] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Save
         </button>
       </div>
     </form>
-
-    <!-- <div class="added-items mt-8 flex flex-wrap gap-4">
-      <h2 class="text-xl font-semibold mb-4 w-full">Added Items</h2>
-      <div v-if="items.length === 0" class="text-gray-500">
-        No items added yet.
-      </div>
-      <div v-else class="w-full flex flex-wrap gap-4">
-        <div
-          v-for="(item, index) in items"
-          :key="index"
-          class="p-4 border border-gray-300 rounded-lg bg-gray-50 shadow-sm w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-        >
-          <h3 class="font-semibold text-lg text-gray-900">{{ item.title }}</h3>
-          <p class="text-gray-700">{{ item.text }}</p>
-          <div v-if="item.image" class="mt-2">
-            <img
-              :src="item.image"
-              alt="Uploaded item image"
-              class="w-full h-32 object-cover rounded-lg"
-            />
-          </div>
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
   
   
   <script>
+// import { mapGetters } from "vuex";
 export default {
   data() {
     return {
+      inputValue: "", // For binding the input
+      tags: [],
       title: "",
       text: "",
       image: null,
       items: [],
+      section: {
+        title: "", // Example title; replace it with your dynamic data source
+      },
     };
   },
+  // computed: {
+  //   ...mapGetters(["selectedSection"]), // Add selectedSection to computed properties
+  // },
   methods: {
+    addTag() {
+      // Check if input is not empty and if the tag does not already exist
+      if (
+        this.inputValue.trim() &&
+        !this.tags.some((tag) => tag.name === this.inputValue.trim())
+      ) {
+        this.tags.push({ name: this.inputValue.trim() }); // Add a new tag as an object
+        this.inputValue = ""; // Clear the input field
+      }
+    },
+    removeTag(index) {
+      this.tags.splice(index, 0); // Remove the tag at the specified index
+    },
     onFileChange(event) {
       const file = event.target.files[0];
       const reader = new FileReader();
 
       reader.onload = (e) => {
-        this.image = e.target.result; // Get base64 string of the image
+        this.image = e.target.result;
       };
-      reader.readAsDataURL(file); // Convert image to base64
+      reader.readAsDataURL(file);
     },
     async submitItem() {
       if (this.title && this.text && this.image) {
@@ -216,7 +244,7 @@ export default {
           id: Date.now().toString(),
           title: this.title,
           text: this.text,
-          image: this.image, // Save base64 string instead of uploading
+          image: this.image,
         };
 
         this.$store.dispatch("addItemToSection", {
@@ -224,13 +252,13 @@ export default {
           newItem,
         });
 
-        // Clear form fields
         this.title = "";
         this.text = "";
         this.image = null;
-      } else {
-        alert("Please fill out all fields!");
       }
+      // else {
+      //   alert("Please fill out all fields!");
+      // }
     },
   },
 };
@@ -249,6 +277,37 @@ export default {
   width: 200px;
   height: 200px;
   object-fit: cover;
+}
+.sidebar {
+  background-color: white;
+  transition: width 0.3s;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.add-item-form {
+  max-height: 95vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.add-item-form::-webkit-scrollbar {
+  display: none;
+}
+.relative {
+  position: relative;
+}
+
+input {
+  padding-left: 100px; /* Adjust based on your tag size */
+}
+
+.absolute {
+  pointer-events: none; /* This ensures the tags don't interfere with input */
 }
 </style>
   

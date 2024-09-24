@@ -1,17 +1,19 @@
 <template>
   <el-container style="height: 100vh">
-    <el-aside :width="isCollapsed ? '64px' : '264px'" class="sidebar">
+    <!-- <el-aside :width="isCollapsed ? '20px' : '264px'" class="sidebar"> -->
+    <el-aside :width="isCollapsed ? '10px' : '264px'" class="sidebar">
       <div
-        class="flex-container flex items-center justify-between mx-5 mt-4 mb-2"
+        class="flex-container flex items-center justify-between mx-0 mt-4 mb-2"
+        :class="{ 'mx-5': !isCollapsed }"
       >
-        <span v-if="!isCollapsed">
+        <span v-if="!isCollapsed" :class="{ 'ml-10': isCollapsed }">
           <img src="../assets/Logo.png" />
         </span>
         <el-icon
-          :class="isCollapsed ? 'arrow-right' : 'arrow-left'"
+          :class="isCollapsed ? 'arrow-right' : 'arrow-right'"
           style="color: black; cursor: pointer"
           @click.stop="toggleSidebar"
-          ><img src="../assets/arrow.png"
+          ><img src="../assets/arrow.png" :class="{ 'h-4': isCollapsed }"
         /></el-icon>
       </div>
 
