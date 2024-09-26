@@ -66,7 +66,7 @@
     </el-aside>
 
     <el-main class="el-main bg-white">
-      <div class="content bg-white text-black">
+      <div class="content bg-white ">
         <ItemDetail/>
 
 
