@@ -67,8 +67,9 @@
 
     <el-main class="el-main bg-white">
       <div class="content bg-white">
-        <AddJournal v-if="selectedSectionId" :sectionId="selectedSectionId" />
-        <p v-else>Please select a section to add items.</p>
+        <ItemDetail/>
+        <!-- <AddJournal v-if="selectedSectionId" :section-id="selectedSectionId" />
+        <p v-else>Please select a section to add items.</p> -->
       </div>
     </el-main>
   </el-container>
@@ -89,6 +90,7 @@ import {
 } from "element-plus";
 import AddJournal from "./AddJournal.vue";
 import { format } from "date-fns";
+import ItemDetail from "./ItemDetail.vue";
 
 export default {
   components: {
@@ -103,6 +105,7 @@ export default {
     Plus,
     Delete,
     AddJournal,
+    ItemDetail
   },
   data() {
     return {
@@ -112,6 +115,9 @@ export default {
   },
   computed: {
     ...mapGetters(["sections"]),
+    // selectedSectionId() {
+    //   return this.$store.state.selectedSectionId;
+    // },
     selectedSectionId() {
       return this.$store.state.selectedSectionId;
     },
@@ -123,6 +129,18 @@ export default {
       "removeSection",
       "selectSection",
     ]),
+    async addNewSection() {
+      if (this.newTitle) {
+        const newSection = {
+          id: Date.now().toString(),
+          title: this.newTitle,
+          items: [],
+        };
+        await this.addSection(newSection);
+        this.newTitle = "";
+        this.showInputField = false;
+      }
+    },
     async addNewJournalSection() {
       const newSection = {
         id: Date.now().toString(),
@@ -141,6 +159,9 @@ export default {
         return "Invalid Date";
       }
       return format(date, "MMMM dd, yyyy");
+    },
+    async selectSection(sectionId) {
+      await this.$store.dispatch("selectSection", sectionId);
     },
   },
   async mounted() {

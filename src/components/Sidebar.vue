@@ -7,7 +7,7 @@
         :class="{ 'mx-5': !isCollapsed }"
       >
         <span v-if="!isCollapsed" :class="{ 'ml-10': isCollapsed }">
-          <img src="../assets/Logo.png" />
+          <img src="../assets/Logo wrap.png" />
         </span>
         <el-icon
           :class="isCollapsed ? 'arrow-right' : 'arrow-right'"

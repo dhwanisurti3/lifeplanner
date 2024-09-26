@@ -7,12 +7,18 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^43.1.1",
+    "@ckeditor/ckeditor5-vue": "^7.1.0",
     "@element-plus/icons-vue": "^2.3.1",
+    "ckeditor5": "^43.1.1",
+    "ckeditor5-premium-features": "^43.1.1",
     "core-js": "^3.8.3",
     "date-fns": "^4.1.0",
     "element-plus": "^2.8.3",
+    "quill": "^2.0.2",
     "vue": "^3.5.8",
     "vue-router": "^4.4.5",
+    "vue3-quill": "^0.3.1",
     "vuex": "^4.1.0"
   },
   "devDependencies": {

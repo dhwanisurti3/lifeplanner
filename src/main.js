@@ -3,6 +3,12 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import "./index.css";
+import { CkeditorPlugin } from "@ckeditor/ckeditor5-vue";
 import "element-plus/dist/index.css";
 
-createApp(App).use(store).use(router).mount("#app");
+const app = createApp(App);
+
+app.use(store);
+app.use(router);
+app.use(CkeditorPlugin);
+app.mount("#app");
