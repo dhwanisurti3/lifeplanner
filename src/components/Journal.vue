@@ -66,8 +66,10 @@
     </el-aside>
 
     <el-main class="el-main bg-white">
-      <div class="content bg-white">
+      <div class="content bg-white text-black">
         <ItemDetail/>
+
+
         <!-- <AddJournal v-if="selectedSectionId" :section-id="selectedSectionId" />
         <p v-else>Please select a section to add items.</p> -->
       </div>
