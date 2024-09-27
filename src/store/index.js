@@ -46,12 +46,6 @@ export default createStore({
         },
     },
     mutations: {
-        // ADD_ITEM_TO_SECTION(state, { sectionId, newItem }) {
-        //     const section = state.sections.find((s) => s.id === sectionId);
-        //     if (section) {
-        //         section.items.push(newItem);
-        //     }
-        // },
         SET_SECTIONS(state, sections) {
             state.sections = sections;
         },
@@ -82,10 +76,6 @@ export default createStore({
         },
     },
     actions: {
-        // async addItemToSection({ commit }, { sectionId, newItem }) {
-        //     // Here you can also perform any async operation if needed
-        //     commit("ADD_ITEM_TO_SECTION", { sectionId, newItem });
-        // },
         async fetchSections({ commit }) {
             try {
                 const response = await fetch("http://localhost:3000/sections");

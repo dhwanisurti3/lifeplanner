@@ -181,24 +181,13 @@
         </button>
         <button
           type="submit"
-          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#6941C6] hover:bg-[#6941C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#6941C6] hover:bg-[#6941C6]"
         >
           Save
         </button>
       </div>
 
     </form>
-    <!-- <div>
-      <div v-for="item in sectionItems" :key="item.id">
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.text }}</p>
-        <div>
-          <span v-for="(tag, index) in item.tags" :key="index" class="tag">
-            {{ tag }}
-          </span>
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
   
@@ -279,15 +268,18 @@ export default {
       sectionId: this.sectionId,
       newItem,
     });
-
+    
+    // Emit the event with the new item
+    this.$emit("submit-item", newItem);  // Changed here
+    
     // Reset form fields
     this.clearForm();
-
-    // Redirect to the ItemDetail page using the item's ID and section ID
-    this.router.push({ name: 'ItemDetail', params: { id: newItem.id, sectionId: this.sectionId } });
     
+    // Optionally, redirect or handle navigation here if needed
+    // this.router.push({ name: 'ItemDetail', params: { id: newItem.id, sectionId: this.sectionId } });
   }
 }
+
   
 
   },

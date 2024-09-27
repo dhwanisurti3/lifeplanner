@@ -42,13 +42,20 @@
             @click="selectSection(section.id)"
             class="el-menu-item flex justify-between items-start bg-white hover:bg-white my-1"
           >
-            <div class="flex flex-col text-left">
+            <!-- <div class="flex flex-col text-left">
               <span class="text-[16px] font-medium h-10">{{
                 section.title
               }}</span>
               <span class="text-gray-500 text-sm">{{
                 formatDate(section.createdDate)
               }}</span>
+            </div> -->
+            <div class="flex flex-col text-left">
+              <!-- Dynamically set section title -->
+              <span class="text-[16px] font-medium h-10">
+                {{ getSectionTitle(section) }}
+              </span>
+              <span class="text-gray-500 text-sm">{{ formatDate(section.createdDate) }}</span>
             </div>
             <el-button type="text" @click.stop="deleteSection(section.id)">
               <el-icon><delete /></el-icon>
@@ -67,12 +74,18 @@
 
     <el-main class="el-main bg-white">
       <div class="content bg-white ">
-        <ItemDetail/>
 
+      <p v-if="!selectedSectionId">Please select a section to add items.</p>
+      <template v-else>
+        <ItemDetail v-if="showItemDetail" :item="currentItem" :sectionId="selectedSectionId" />
+        <AddJournal
+          v-else
+          :section-id="selectedSectionId"
+          @submit-item="handleNewItem" 
+        />
+      </template>
 
-        <!-- <AddJournal v-if="selectedSectionId" :section-id="selectedSectionId" />
-        <p v-else>Please select a section to add items.</p> -->
-      </div>
+    </div>
     </el-main>
   </el-container>
 </template>
@@ -111,17 +124,26 @@ export default {
   },
   data() {
     return {
+      currentItem: null,
       showInputField: false,
       newTitle: "",
+      showItemDetail: false, // Control visibility of ItemDetail
+      currentItem: null, // Store the current item to be shown in ItemDetail
+      selectedSectionId: 'selectedSectionId', // Set your selected section ID
+      
+    
     };
   },
   computed: {
-    ...mapGetters(["sections"]),
+    ...mapGetters(["sections","selectedSectionId"]),
     // selectedSectionId() {
     //   return this.$store.state.selectedSectionId;
     // },
     selectedSectionId() {
       return this.$store.state.selectedSectionId;
+    },
+    showItemDetail() {
+      return !!this.currentItem; // Show ItemDetail if currentItem is not null
     },
   },
   methods: {
@@ -164,6 +186,28 @@ export default {
     },
     async selectSection(sectionId) {
       await this.$store.dispatch("selectSection", sectionId);
+    },
+    handleNewItem(newItem) {
+      // Set the new item to display in ItemDetail
+      this.currentItem = newItem;
+      this.showItemDetail = true;  
+      
+      // Push the route programmatically if you need
+  //     if (newItem && this.selectedSectionId) {
+  //   this.$router.push({
+  //     name: 'ItemDetail',
+  //     params: { id: newItem.id, sectionId: this.selectedSectionId }
+  //   });
+  // } else {
+  //   console.error("Invalid item or section ID:", newItem.id, this.selectedSectionId);
+  // }
+    },
+    getSectionTitle(section) {
+      if (section.items.length === 0) {
+        return "New Journal"; // Default title if no items
+      } else {
+        return section.items[0].title; // Title from the first item
+      }
     },
   },
   async mounted() {
