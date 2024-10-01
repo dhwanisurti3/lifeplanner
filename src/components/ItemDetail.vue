@@ -3,116 +3,62 @@
     <div class="title text-start text-2xl mb-8">
       {{ item.title }}
     </div>
+
     <!-- Header Tags -->
-     <div>
-      <p class="text-center text-sm text-gray-400  font-thin mb-3">January 11, 2025 at 11:43PM</p>
-     </div>
+    <div>
+      <p class="text-center text-sm text-gray-400 font-thin mb-3">January 11, 2025 at 11:43PM</p>
+    </div>
+
     <div class="flex space-x-2 mb-4">
       <button class="bg-gray-300 text-gray-700 py-1 px-4 rounded">Lorem ipsum</button>
       <button class="bg-gray-300 text-gray-700 py-1 px-4 rounded">Tag2</button>
     </div>
 
     <!-- Daily Reflections -->
-    <div class="mb-6 text-left">
-      <h2 class="text-xl font-semibold mb-2">1. Daily Reflections:</h2>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>{{ item.text }}.</li>
-        <li>Faced a challenge with scheduling; considering a new software solution.</li>
-        <li>Explored partnership opportunities with local health food vendors.</li>
-      </ul>
-    </div>
+<!-- <div v-if="item.image">
+  <img :src="item.image" alt="Uploaded Image" class="rounded-lg shadow-lg" />
+</div> -->
 
-    <!-- Goals and Objectives -->
-    <div class="mb-6 text-left">
-      <h2 class="text-xl font-semibold mb-2">2. Goals and Objectives:</h2>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>Increase class attendance by 15% in the next month.</li>
-        <li>Launch a referral program to incentivize current members.</li>
-        <li>Expand class offerings to include high-demand fitness trends.</li>
-      </ul>
-    </div>
-
-    <!-- Financial Updates -->
-    <div class="mb-6 text-left">
-      <h2 class="text-xl font-semibold mb-2">3. Financial Updates:</h2>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>Monthly revenue increased by 8%.</li>
-        <li>Investment in new equipment for upcoming fitness classes.</li>
-        <li>Analyzing cost-effective marketing strategies for the next quarter.</li>
-      </ul>
-    </div>
-
-    <!-- Customer Reflections -->
-    <div class="mb-6 text-left">
-      <h2 class="text-xl font-semibold mb-2">4. Customer Insights:</h2>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>Received positive testimonials from members on recent classes.</li>
-        <li>Addressed a member concern about class timing and scheduling.</li>
-      </ul>
-    </div>
-    <div class="mb-6 text-left">Received positive testimonials from members on recent classes.Received positive testimonials from members on recent classes.Received positive testimonials from members on recent classes.Received positive testimonials from members on recent classes.</div>
-    
-
+    <div class="content ql-editor mb-6" id="preview" v-html="formattedText"></div>
     <!-- Images -->
-     <div class="w-[80%]">
+    <div v-if="item.image" class="w-[80%]">
       <div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="relative">
-      <img src="https://via.placeholder.com/300x200" alt="Placeholder" class="rounded-lg shadow-lg" />
-      <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 ">
-      </img>
-    </div>
-
-    <div class="relative">
-      <img src="https://via.placeholder.com/300x200" alt="Placeholder" class="rounded-lg shadow-lg" />
-      <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 ">
-      </img >
-    </div>
-
-    <div class="relative">
-      <img src="https://via.placeholder.com/300x200" alt="Placeholder" class="rounded-lg shadow-lg" />
-      <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 ">
-      </img >
-    </div>
-
-    <div class="relative">
-      <img src="https://via.placeholder.com/300x200" alt="Placeholder" class="rounded-lg shadow-lg" />
-      <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 ">
-      </img >
-    </div>
-  </div>
-  </div>
-
-    <!-- Audio Player -->
-    <div class="flex w-[70%] h-18 mb-4  rounded-xl border border-gray-300 p-2">
-    <!-- Left Image -->
-    <div class="flex-shrink-0 mt-2">
-      <img src="../assets/record_mic.png" alt="Microphone" />
-    </div>
-    <!-- Audio Player and Details -->
-    <!-- <div class="flex flex-col w-full relative ml-1">
-      <div class="flex items-center space-x-4 mb-2 text-left">
-        <div class="flex flex-col w-full mt-3">
-          <div class="font-semibold">Record 1</div>
-          <audio controls class="w-[90%] bg-white mt-2  rounded-lg p-2">
-            <source src="your-audio-file.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-          </audio>
+        <div class="relative">
+          <img :src="item.image" alt="Uploaded Image" class="rounded-lg shadow-lg" />
+          <!-- <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 "> -->
         </div>
-        <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 w-6 h-6" alt="Icon" />
       </div>
-    </div> -->
-  </div>
-
+    </div>
 
     <!-- Video -->
-    <!-- <div class="video-container mb-6 text-left max-w-full ">
+    <div v-if="item.videoUrl" class="video-container mb-6 text-left max-w-full">
       <video controls class="w-[70%] rounded-lg shadow-lg text-left">
-        <source src="your-video-file.mp4" type="video/mp4">
+        <source :src="item.videoUrl" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-    </div> -->
+    </div>
 
-  
+    <!-- Audio Player -->
+    <div v-if="item.audioUrl" class="flex w-[70%] h-18 mb-4 rounded-xl border border-gray-300 p-2">
+      <!-- Left Image -->
+      <div class="flex-shrink-0 mt-2">
+        <img src="../assets/record_mic.png" alt="Microphone" />
+      </div>
+
+      <!-- Audio Player and Details -->
+      <div class="flex flex-col w-full relative ml-1">
+        <div class="flex items-center space-x-4 mb-2 text-left">
+          <div class="flex flex-col w-full mt-3">
+            <div class="font-semibold">Audio</div>
+            <audio controls class="w-[90%] bg-white mt-2 rounded-lg p-2">
+              <source :src="item.audioUrl" type="audio/mpeg">
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <img src="../assets/_Nav item button.png" class="absolute top-2 right-2 w-6 h-6" alt="Icon" />
+        </div>
+      </div>
+    </div>
 
     <!-- Footer -->
     <p class="text-sm text-gray-500 text-left">
@@ -120,6 +66,7 @@
     </p>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -129,6 +76,45 @@ export default {
       required: false,
     },
   },
+  computed: {
+    formattedText() {
+      // Log the item to the console
+      // console.log("item", this.item);
+      
+      // Ensure item and item.text exist before sanitizing
+      if (this.item && this.item.text) {
+        return this.sanitizeHtml(this.item.text);
+      }
+      return '';
+    },
+  },
+  methods: {
+  sanitizeHtml(html) {
+    // console.log("Raw HTML before sanitization:", html); // Log raw HTML for debugging
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+
+    const allowedTags = [
+      "b", "strong", "i", "em", "u", "strike", "code",
+      "blockquote", "pre", "p", "div",
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "ul", "ol", "li", "a", "img", 
+      "video", "audio", "iframe", "br", "hr",
+      "table", "tr", "td", "th", "span", "font", "color", "background"
+    ];
+    
+    Array.from(tempDiv.getElementsByTagName("*")).forEach((node) => {
+      if (!allowedTags.includes(node.nodeName.toLowerCase())) {
+        node.parentNode.removeChild(node);
+      }
+    });
+
+    const sanitizedHtml = tempDiv.innerHTML;
+    // console.log("Sanitized HTML:", sanitizedHtml); // Log sanitized HTML for debugging
+    return sanitizedHtml;
+  },
+},
+
 };
 </script>
 <style >
@@ -141,5 +127,25 @@ export default {
 
 .content ::-webkit-scrollbar {
   display: none;
+}
+
+#preview h1 {
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+h2 {
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
 }
 </style>

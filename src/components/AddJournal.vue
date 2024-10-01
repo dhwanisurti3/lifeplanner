@@ -29,13 +29,16 @@
           class="block text-sm font-medium text-gray-800 text-left"
           >Description</label
         >
-        <textarea
-          id="text"
+        <quill-editor
           v-model="text"
-          placeholder="Enter item text"
-          rows="6"
-          class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        ></textarea>
+          :options="editorOption"
+          :disabled="disabled"
+          @blur="onEditorBlur"
+          @focus="onEditorFocus"
+          @ready="onEditorReady"
+          @change="onEditorChange"
+          
+        />
       </div>
 
       <!-- Tags -->
@@ -73,103 +76,127 @@
       <div class="flex space-x-4">
         <!-- Voice Recorder -->
         <div class="flex-1">
-          <label
-            for="voice"
-            class="block text-sm font-medium text-gray-800 text-left"
-          >
-            Record Voice
-          </label>
-
-          <!-- Hidden File Input -->
-          <input
-            id="voice"
-            type="file"
-            accept="audio/*"
-            ref="voiceInput"
-            class="hidden"
-          />
-
-          <!-- Image that triggers file input -->
-          <div
-            class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
-            @click="$refs.voiceInput.click()"
-          >
-            <img
-              src="../assets/record_mic.png"
-              alt="Record Microphone"
-              class="h-12 w-12"
+            <label for="voice" class="block text-sm font-medium text-gray-800 text-left">
+              Record Voice
+            </label>
+            <!-- Audio Playback -->
+            <audio v-if="audioUrl" :src="audioUrl" controls class="mt-3"></audio>
+            <!-- Hidden File Input -->
+            <input
+              id="voice"
+              type="file"
+              accept="audio/*"
+              ref="voiceInput"
+              class="hidden"
             />
-            <p>
-              <span class="text-[#6941C6] font-semibold">Click </span>to start
-              recording...
-            </p>
+
+            <!-- Image that triggers file input -->
+            <div
+              class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
+              @click="startRecording"
+            >
+              <img
+                src="../assets/record_mic.png"
+                alt="Record Microphone"
+                class="h-12 w-12"
+              />
+              <p>
+                <span class="text-[#6941C6] font-semibold">{{ recording ? 'Recording...' : 'Click to start recording...' }}</span>
+              </p>
+            </div>
+
+            <!-- Stop Recording Button -->
+            <button v-if="recording" @click="stopRecording" class="mt-3 bg-red-500 text-white py-1 px-4 rounded">
+              Stop Recording
+            </button>
+
+
           </div>
-        </div>
 
         <!-- Video Recorder -->
         <div class="flex-1">
-          <label
-            for="video"
-            class="block text-sm font-medium text-gray-800 text-left"
-          >
-            Video
-          </label>
+      <label class="block text-sm font-medium text-gray-800 text-left">Record Video</label>
 
-          <!-- Hidden File Input -->
-          <input
-            id="video"
-            type="file"
-            accept="video/*"
-            ref="videoInput"
-            class="hidden"
-          />
+      <!-- Video Element -->
+      <!-- Video Playback -->
+      <div v-if="videoUrl" class="mt-4">
+        <video controls :src="videoUrl" class="w-full mt-2" />
+      </div>
+      <!-- Image that triggers recording -->
+      <div
+        class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
+        @click="startRecordingVideo"
+      >
+        <img
+          src="../assets/Featured icon.png"
+          alt="Record Video"
+          class="h-12 w-12"
+        />
+        <p>
+          <span class="text-[#6941C6] font-semibold">{{ recordingVideo ? 'Recording...' : 'Click to start recording...' }}</span>
+        </p>
+      </div>
+      <!-- <video ref="video" class="w-full mt-2" autoplay playsinline></video> -->
 
-          <!-- Image that triggers file input -->
-          <div
-            class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
-            @click="$refs.videoInput.click()"
-          >
-            <img
-              src="../assets/Featured icon.png"
-              alt="Record Video"
-              class="h-12 w-12"
-            />
-            <p>
-              <span class="text-[#6941C6] font-semibold">Click </span>to start
-              recording...
-            </p>
-          </div>
-        </div>
+
+      <!-- Stop Recording Button -->
+      <button v-if="recordingVideo" @click="stopRecordingVideo" class="mt-3 bg-red-500 text-white py-1 px-4 rounded">
+        Stop Recording
+      </button>
+
+
+      </div>
       </div>
 
       <!-- File Upload Full Width -->
+      <!-- <input
+          id="image"
+          type="file"
+          @change="onFileChange"
+          class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+        /> -->
       <div class="mt-4 w-full">
-        <label
-          for="file"
-          class="block text-sm font-medium text-gray-800 text-left"
-        >
-          Files
-        </label>
+    <label
+      for="file"
+      class="block text-sm font-medium text-gray-800 text-left"
+    >
+      Images
+    </label>
 
-        <!-- Hidden File Input -->
-        <input id="file" type="file" ref="fileInput" class="hidden" />
+    <!-- Hidden File Input -->
+    <input 
+      id="image" 
+      type="file" 
+      ref="fileInput" 
+      accept="image/*" 
+      class="hidden" 
+      @change="onFileChange" 
+    />
 
-        <!-- Image Trigger for File Upload -->
-        <div
-          class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
-          @click="$refs.fileInput.click()"
-        >
-          <img
-            src="../assets/Featured icon (1).png"
-            alt="Upload File"
-            class="h-12 w-12"
-          />
-          <p>
-            <span class="text-[#6941C6] font-semibold">Click to upload</span> or
-            drag and drop
-          </p>
-        </div>
-      </div>
+    <!-- Image Trigger for File Upload -->
+    <div
+      class="mt-1 p-3 border border-gray-300 rounded-lg shadow-sm cursor-pointer flex flex-col justify-center items-center"
+      @click="$refs.fileInput.click()"
+    >
+      <img
+        src="../assets/Featured icon (1).png"
+        alt="Upload Image"
+        class="h-12 w-12"
+      />
+      <p>
+        <span class="text-[#6941C6] font-semibold">Click to upload</span> or
+        drag and drop
+      </p>
+    </div>
+
+    <!-- Show uploaded image preview -->
+    <div v-if="uploadedImageUrl" class="mt-4">
+      <img :src="uploadedImageUrl" alt="Uploaded Image" class="h-32 w-32 object-cover rounded-lg" />
+      <p class="mt-2 text-gray-700">
+        Uploaded Image: {{ uploadedFile.name }}
+      </p>
+    </div>
+  </div>
 
       <div class="mt-6 flex justify-end gap-2">
         <button
@@ -194,8 +221,9 @@
   
   <script>
   import { useRouter } from "vue-router";
-// import { mapGetters } from "vuex";
-export default {
+  import 'quill/dist/quill.snow.css'; 
+
+  export default {
   props: {
     sectionId: {
       type: String,
@@ -204,13 +232,48 @@ export default {
   },
   data() {
     return {
-      inputValue: "", // For binding the input
+      // uploadedImageUrl: null,
+      // uploadedFile: null, 
+      image:null,
+      mediaRecorder: null,
+      audioChunks: [],
+      audioUrl: null,
+      recording: false,
+      recordingVideo: false,
+      videoUrl: null,
+      stream: null,
+      inputValue: "", 
       tags: [],
       title: "",
       text: "",
       image: null,
       items: [],
-
+      readOnly :true,
+      editorOption: {
+        placeholder: 'add description',
+    
+        readOnly: this.readOnly,
+        modules: {
+          toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ header: 1 }, { header: 2 }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ indent: '-1' }, { indent: '+1' }],
+              [{ direction: 'rtl' }],
+              [{ size: ['small', false, 'large', 'huge'] }],
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ color: [] }, { background: [] }],
+              [{ font: [] }],
+              [{ align: [] }],
+              ['clean'],
+              ['link', 'image', 'video']
+            ],
+        },
+        theme: 'snow',
+      },
+      disabled: false 
     };
   },
   mounted() {
@@ -224,7 +287,6 @@ export default {
       return section ? section.items : [];
     },
   },
-
   methods: {
     addTag() {
       if (
@@ -239,53 +301,131 @@ export default {
     removeTag(index) {
       this.tags.splice(index, 1);
     },
+    handleFileUpload(event) {
+      const file = event.target.files[0]; 
+      if (file && file.type.startsWith('image/')) { 
+        this.uploadedFile = file;
+
+ 
+        this.uploadedImageUrl = URL.createObjectURL(file);
+
+        
+        const formData = new FormData();
+        formData.append('file', file);
+      } else {
+        alert('Please upload a valid image file.');
+      }
+    },
     clearForm() {
       this.title = "";
       this.text = "";
       this.tags = [];
+      this.videoUrl = "",
+      this.audioUrl = "",
+      // this.uploadedImageUrl = ""
+      this.image = ""
     },
     onFileChange(event) {
       const file = event.target.files[0];
       const reader = new FileReader();
 
       reader.onload = (e) => {
-        this.image = e.target.result;
+        this.image = e.target.result; 
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Convert image to base64
+    },
+    async startRecording() {
+      
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Your browser does not support audio recording.');
+        return;
+      }
+      this.recording = true;
+      this.audioChunks = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+        this.audioUrl = URL.createObjectURL(audioBlob);
+      };
+      this.mediaRecorder.start();
+    },
+
+    stopRecording() {
+      this.recording = false;
+      this.mediaRecorder.stop(); 
+    },
+    async startRecordingVideo() {
+      this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      this.$refs.video.srcObject = this.stream;
+
+      this.mediaRecorder = new MediaRecorder(this.stream);
+      this.recordingVideo = true;
+      const videoChunks = [];
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        videoChunks.push(event.data);
+      };
+
+      this.mediaRecorder.onstop = () => {
+        const videoBlob = new Blob(videoChunks, { type: 'video/webm' });
+        this.videoUrl = URL.createObjectURL(videoBlob);
+        this.stream.getTracks().forEach(track => track.stop()); // Stop all tracks
+      };
+
+      this.mediaRecorder.start();
+    },
+    stopRecordingVideo() {
+      this.mediaRecorder.stop();
+      this.recordingVideo = false;
     },
     async submitItem() {
-  if (this.title && this.text) {
-    const newItem = {
-      id: Date.now().toString(),
-      title: this.title,
-      text: this.text,
-      tags: this.tags,
-      sectionId: this.sectionId,
-    };
-
-    // Dispatch action to add the item to the selected section
+    if (this.title && this.text) {
+      const newItem = {
+        id: Date.now().toString(),
+        title: this.title,
+        text: this.text,
+        tags: this.tags,
+        sectionId: this.sectionId,
+        audioUrl: this.audioUrl, 
+      videoUrl: this.videoUrl, 
+      image:this.image
+      };
     await this.$store.dispatch("addItemToSection", {
       sectionId: this.sectionId,
       newItem,
     });
     
     // Emit the event with the new item
-    this.$emit("submit-item", newItem);  // Changed here
+    this.$emit("submit-item", newItem);  
     
     // Reset form fields
     this.clearForm();
-    
-    // Optionally, redirect or handle navigation here if needed
-    // this.router.push({ name: 'ItemDetail', params: { id: newItem.id, sectionId: this.sectionId } });
   }
-}
-
+},
+onEditorBlur(quill) {
+      // console.log('editor blur!', quill)
+    },
+    onEditorFocus(quill) {
+      // console.log('editor focus!', quill)
+    },
+    onEditorReady(quill) {
+      console.log('editor ready!', quill)
+    },
+    onEditorChange({ quill, html, text }) {
+    // console.log('editor change!', quill, html, text)
+    this.text = html; 
+  },
   
 
   },
   setup() {
-    const router = useRouter(); // Create a router instance
-    return { router }; // Return it so it can be used in methods
+    const router = useRouter(); 
+    return { router }; 
   },
 };
 </script>
@@ -324,7 +464,6 @@ export default {
   display: none;
 }
 
-/* Styling for tags */
 .flex-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -338,7 +477,7 @@ export default {
 }
 
 .absolute {
-  pointer-events: none; /* This ensures the tags don't interfere with input */
+  pointer-events: none; 
 }
 </style>
   

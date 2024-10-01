@@ -5,6 +5,7 @@ export default createStore({
     state: {
         sections: [],
         selectedSectionId: null,
+        currentItem: null,
     },
     getters: {
         // sections(state) {
@@ -59,6 +60,7 @@ export default createStore({
         },
         SET_SELECTED_SECTION(state, sectionId) {
             state.selectedSectionId = sectionId;
+
         },
         ADD_ITEM_TO_SECTION(state, { sectionId, newItem }) {
             const section = state.sections.find((s) => s.id === sectionId);
@@ -74,7 +76,14 @@ export default createStore({
                 );
             }
         },
-    },
+        UPDATE_SECTIONS_ORDER(state, { fromIndex, toIndex }) {
+            const section = state.sections.splice(fromIndex, 1)[0];
+            state.sections.splice(toIndex, 0, section);
+            localStorage.setItem('sections', JSON.stringify(state.sections));
+
+          },
+          
+    },  
     actions: {
         async fetchSections({ commit }) {
             try {
@@ -84,46 +93,6 @@ export default createStore({
             } catch (error) {
                 console.error("Failed to fetch sections:", error);
             }
-
-            // const localSections = localStorage.getItem("sections");
-
-            // if (localSections) {
-            //     // If sections exist in localStorage, use them
-            //     commit("SET_SECTIONS", JSON.parse(localSections));
-            // } else {
-            //     // Fetch from db.json if nothing is in localStorage
-            //     fetch("/db.json")
-            //         .then((response) => response.json())
-            //         .then((data) => {
-            //             commit("SET_SECTIONS", data.sections);
-            //             localStorage.setItem(
-            //                 "sections",
-            //                 JSON.stringify(data.sections)
-            //             ); // Save to localStorage
-            //         })
-            //         .catch((error) =>
-            //             console.error("Failed to fetch sections:", error)
-            //         );
-            // }
-
-            // const localSections = localStorage.getItem("sections");
-
-            // if (localSections) {
-            //     commit("SET_SECTIONS", JSON.parse(localSections));
-            // } else {
-            //     fetch("/db.json")
-            //         .then((response) => response.json())
-            //         .then((data) => {
-            //             commit("SET_SECTIONS", data.sections);
-            //             localStorage.setItem(
-            //                 "sections",
-            //                 JSON.stringify(data.sections)
-            //             );
-            //         })
-            //         .catch((error) =>
-            //             console.error("Failed to fetch sections:", error)
-            //         );
-            // }
         },
         async addSection({ commit }, newSection) {
             try {
@@ -169,25 +138,71 @@ export default createStore({
         async removeItemFromSection({ commit, state }, { sectionId, itemId }) {
             const section = state.sections.find((s) => s.id === sectionId);
             if (section) {
-                section.items = section.items.filter(
-                    (item) => item.id !== itemId
-                );
-
+                section.items = section.items.filter((item) => item.id !== itemId);
                 try {
                     await fetch(`http://localhost:3000/sections/${sectionId}`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ items: section.items }),
                     });
-
-                    commit("SET_SECTIONS", state.sections);
+                    commit("REMOVE_ITEM_FROM_SECTION", { sectionId, itemId });
+                    await this.dispatch("saveSectionsToServer"); // Save after removing
                 } catch (error) {
                     console.error("Failed to remove item:", error);
                 }
             }
+        },        
+        selectSection({ commit, state }, sectionId) {
+
+        // Check if the item with the given sectionId exists in the state
+        const itemExists = state.sections.find(section => section.id === sectionId);
+        console.log("itemExists",itemExists);
+
+        if (itemExists) {
+        console.log("Item found:", itemExists);
+        commit("SET_SELECTED_SECTION", sectionId);
+        } else {
+        console.log("Item not found for Section ID:", sectionId);
+        }
         },
-        selectSection({ commit }, sectionId) {
-            commit("SET_SELECTED_SECTION", sectionId);
+        async saveSectionsToServer({ state }) {
+            try {
+                for (const section of state.sections) {
+                    await fetch(`http://localhost:3000/sections/${section.id}`, {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(section),
+                    });
+                }
+                console.log("Sections successfully saved to the server");
+            } catch (error) {
+                console.error("Failed to save sections:", error);
+            }
         },
+        async updateSectionsOrder({ commit, state }, { fromIndex, toIndex }) {
+            commit('UPDATE_SECTIONS_ORDER', { fromIndex, toIndex });
+            try {
+                const updatedSections = state.sections.map((section, index) => ({
+                    ...section,
+                    order: index, // If you have an 'order' property, update it here
+                }));
+
+                await Promise.all(
+                    updatedSections.map((section) =>
+                        fetch(`http://localhost:3000/sections/${section.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(section),
+                        })
+                    )
+                );
+
+                console.log('Sections order successfully updated on the server');
+            } catch (error) {
+                console.error('Failed to update sections order on the server:', error);
+            }
+        }
     },
 });
