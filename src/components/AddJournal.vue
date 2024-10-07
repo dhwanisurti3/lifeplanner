@@ -480,4 +480,3 @@ onEditorBlur(quill) {
   pointer-events: none; 
 }
 </style>
-  

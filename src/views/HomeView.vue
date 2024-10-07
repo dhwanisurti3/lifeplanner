@@ -18,3 +18,12 @@ export default {
   },
 };
 </script>
+<style>
+* {
+  --el-menu-active-color: rgb(53, 51, 51); /* Replace with your desired hex color */
+}
+.el-menu-item.is-active {
+  color: var(--el-menu-active-color);
+  font-weight: bold; /* Makes the active menu item text bold */
+}
+</style>

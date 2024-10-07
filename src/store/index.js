@@ -33,9 +33,9 @@ export default createStore({
                 } else if (isYesterday(sectionDate)) {
                     displayDate = "Yesterday";
                 }
-                //  {
-                //     displayDate = format(sectionDate, "MMMM dd, yyyy");
-                // }
+                else {
+                    displayDate = format(sectionDate, "dd-MM-yyyy");
+                }
 
                 if (!sectionsByDate[displayDate]) {
                     sectionsByDate[displayDate] = [];
@@ -45,6 +45,20 @@ export default createStore({
 
             return sectionsByDate;
         },
+        filteredItems: (state) => (searchQuery) => {
+            const lowerCaseQuery = searchQuery.toLowerCase();
+            const filteredSections = state.sections
+                .map(section => {
+                    const filteredItems = section.items.filter(item =>
+                        item.title.toLowerCase().includes(lowerCaseQuery)
+                    );
+                    // Return section only if it has filtered items
+                    return { ...section, items: filteredItems.length > 0 ? filteredItems : null };
+                })
+                .filter(section => section.items !== null); // Keep only sections with items
+    
+            return filteredSections;
+        }
     },
     mutations: {
         SET_SECTIONS(state, sections) {
